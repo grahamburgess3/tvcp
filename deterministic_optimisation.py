@@ -101,14 +101,15 @@ class Phi():
         self.problem.s_decrease = pyo.Constraint(self.problem.T_shelter_second, rule = s_down)
         self.problem.s_not_too_low = pyo.Constraint(self.problem.T_shelter_second, rule = s_not_below_init)
 
-    def solve(self, solver):
+    def solve(self, solver, print):
         self.opt=SolverFactory(solver)
         self.instance=self.problem.create_instance()
         self.results=self.opt.solve(self.instance)
         self.h_opt=[self.instance.h[i].value for i in range(len(self.instance.h))]
         self.s_opt=[self.instance.s[i].value for i in range(len(self.instance.s))]
-        self.print_results()
-        self.plot_opt({'housing' : self.h_opt, 'shelter' : self.s_opt})
+        if print:
+            self.print_results()
+            self.plot_opt({'housing' : self.h_opt, 'shelter' : self.s_opt})
 
     def print_results(self):
         print('------- Optimal solution -------')
@@ -142,15 +143,15 @@ class Phi0(Phi):
         self.add_total_budget_constraint()
         self.add_baseline_build_constraint()
 
-    def solve(self, solver):
-        super(Phi0, self).solve(solver)
+    def solve(self, solver, print=True):
+        super(Phi0, self).solve(solver, print)
 
 class Phi1(Phi0):
     def __init__(self, data, modeling_options, obj, c):
         super(Phi1, self).__init__(data, modeling_options, obj, c)
 
-    def solve(self, solver):
-        super(Phi1, self).solve(solver)
+    def solve(self, solver, print=True):
+        super(Phi1, self).solve(solver, print)
 
 class Phi2(Phi):
     def __init__(self, data, modeling_options, obj, c, shelter_mode):
@@ -160,8 +161,8 @@ class Phi2(Phi):
         self.add_housing_increase()
         self.add_shelter_increase_decrease(shelter_mode)
 
-    def solve(self, solver):
-        super(Phi2, self).solve(solver)
+    def solve(self, solver, print=True):
+        super(Phi2, self).solve(solver, print)
 
 # constraint funcs
 def init_conditions_h(problem):
