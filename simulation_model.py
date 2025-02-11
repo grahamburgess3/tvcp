@@ -269,18 +269,7 @@ def process_straight_to_housing(env, c, accommodation_stock, service_mean, warm_
         accommodation_stock.update_stats(env.now-warm_up_time, accomm_type_next, -1)        
 
         # When found housing, spend time in housing
-        # sample x_0 from triangle dist: F(x_0) is in (0,1) and equivalent to random time already spent in service
-        # Sample x from the traingle dist and only keep if the x>=x_0
-        C = (service_dist['mid'] - service_dist['low']) / (service_dist['high'] - service_dist['low'])
-        loc = service_dist['low']
-        scale = service_dist['high'] - service_dist['low']
-        x_0 = scipy.stats.triang.rvs(C,loc,scale)
-        generating = True
-        while generating:
-                x = scipy.stats.triang.rvs(C,loc,scale)
-                if x >= x_0:
-                        time_in_accomm = x-x_0
-                        generating = False
+        time_in_accomm = np.random.exponential(service_mean[accomm_type_next])           
         yield env.timeout(time_in_accomm)
 
         # Finally, leave housing
@@ -331,7 +320,7 @@ def process_find_accommodation(env, c, accommodation_stock, service_mean, warm_u
 
                 # When found housing, leave shelter and spend time in housing
                 accommodation_stock.store.put(shelter)
-                time_in_accomm = np.random.triangular(service_dist['low'], service_dist['mid'], service_dist['high'])
+                time_in_accomm = np.random.exponential(service_mean[accomm_type_next])
                 yield env.timeout(time_in_accomm)
 
                 # Finally, leave housing
@@ -481,7 +470,7 @@ class SimulationModel(object):
                 fig, ax = plt.subplots()
 
                 # x - axis
-                x = [i/365 for i in range(self.end_of_simulation*365)]
+                x = [i/365 for i in range(math.ceil(self.end_of_simulation)*365)]
 
                 # y - axis
                 alpha = (100 - percentile) / 100
@@ -492,7 +481,7 @@ class SimulationModel(object):
                 ax.set(xlabel='t (yrs)', ylabel='Number of people', title='DES model')
                 ax.legend(["$h_t$", "$s_t$", "$u_t$"], loc="upper left")
                 ax.grid()
-                ymax = max(self.h + self.s + high)
+                ymax = max(self.h + self.s + self.high)
                 ax.set_ylim(0,ymax*1.05)
                 
                 # display
