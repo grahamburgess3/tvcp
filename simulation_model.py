@@ -437,7 +437,7 @@ class SimulationModel(object):
                 """
                 np.random.seed(seed = self.seed)
                 Customer.prob_re_entry = self.prob_re_entry
-                self.results = {'unsheltered_q_over_time' : [], 'unsheltered_q_avg' : [], 'time_taken' : 0}
+                self.results = {'unsheltered_q_over_time' : [], 'sheltered_q_over_time' : [], 'unsheltered_q_avg' : [], 'time_taken' : 0}
                 start = datetime.now()
                 for rep in range(self.number_reps):
                         env = simpy.Environment()
@@ -446,16 +446,21 @@ class SimulationModel(object):
                         env.process(gen_development_sched(env, accommodation_stock, self.accomm_build_time, self.warm_up_time, self.h, self.s))
                         env.run(until=self.end_of_simulation)
                         self.results['unsheltered_q_over_time'].append(np.array(pd.concat([pd.Series([self.initial_demand - self.capacity_initial['shelter']-self.capacity_initial['housing']]), pd.Series(accommodation_stock.data_queue_shelter[1:])])))
+                        self.results['sheltered_q_over_time'].append(np.array(pd.concat([pd.Series([self.capacity_initial['shelter']]), pd.Series(accommodation_stock.data_queue_housing[1:])])))
                         for accomm_type in ['housing', 'shelter']:
                                 accommodation_stock.data_queue_avg[accomm_type]['running_avg'] += accommodation_stock.store.queue[accomm_type] * (self.end_of_simulation - self.warm_up_time - accommodation_stock.data_queue_avg[accomm_type]['time_last_updated'])
                                 accommodation_stock.data_queue_avg[accomm_type]['running_avg'] = accommodation_stock.data_queue_avg[accomm_type]['running_avg'] / (self.end_of_simulation - self.warm_up_time)
                         self.results['unsheltered_q_avg'].append(accommodation_stock.data_queue_avg['shelter']['running_avg'])
                 end = datetime.now()
                 self.results['unsheltered_q_over_time'] = np.array(self.results['unsheltered_q_over_time']).T
+                self.results['sheltered_q_over_time'] = np.array(self.results['sheltered_q_over_time']).T
                 self.results['time_taken'] = end-start
                 self.low = list(np.percentile(self.results['unsheltered_q_over_time'], 100-percentile, axis=1))
                 self.median = list(np.percentile(self.results['unsheltered_q_over_time'], 50, axis = 1))
                 self.high = list(np.percentile(self.results['unsheltered_q_over_time'], percentile, axis=1))
+                self.low_sh = list(np.percentile(self.results['sheltered_q_over_time'], 100-percentile, axis=1))
+                self.median_sh = list(np.percentile(self.results['sheltered_q_over_time'], 50, axis = 1))
+                self.high_sh = list(np.percentile(self.results['sheltered_q_over_time'], percentile, axis=1))
 
         def plot(self, percentile = 90):
                 """
@@ -476,8 +481,10 @@ class SimulationModel(object):
                 alpha = (100 - percentile) / 100
                 ax.plot(x, self.h, color = 'green')
                 ax.plot(x, self.s, color = 'orange')
+                ax.plot(x, self.median_sh, color = 'orange')
                 ax.plot(x, self.median, color = 'red')
                 ax.fill_between(x, self.low, self.high, color='red', alpha=alpha)
+                ax.fill_between(x, self.low_sh, self.high_sh, color='orange', alpha=alpha)
                 ax.set(xlabel='t (yrs)', ylabel='Number of people', title='DES model')
                 ax.legend(["$h_t$", "$s_t$", "$u_t$"], loc="upper left")
                 ax.grid()
