@@ -477,13 +477,13 @@ class SimulationModel(object):
                 # y - axis
                 alpha = (100 - percentile) / 100
                 ax.plot(x, self.h, color = 'green')
-                ax.plot(x, self.s, color = 'yellow')
+                ax.plot(x, self.s, color = 'orange', linestyle = 'dashed')
                 ax.plot(x, self.median_sh, color = 'orange')
                 ax.plot(x, self.median, color = 'red')
                 ax.fill_between(x, self.low, self.high, color='red', alpha=alpha)
                 ax.fill_between(x, self.low_sh, self.high_sh, color='orange', alpha=alpha)
                 ax.set(xlabel='t (yrs)', ylabel='Number of people', title='DES model')
-                ax.legend(["$h_t$", "$s_t$-built", "$s_t$-actual", "$u_t$"], loc="upper left")
+                ax.legend(["$h_t$", "$s_t$ (plan)", "$s_t$ (actual)", "$u_t$"], loc="upper left")
                 ax.grid()
                 ymax = max(self.h + self.s + self.high)
                 ax.set_ylim(0,ymax*1.05)
