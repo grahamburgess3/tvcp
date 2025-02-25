@@ -266,7 +266,20 @@ def process_straight_to_housing(env, c, accommodation_stock, service_mean, warm_
         accommodation_stock.update_stats(env.now-warm_up_time, accomm_type_next, -1)        
 
         # When found housing, spend time in housing
-        time_in_accomm = np.random.exponential(service_mean[accomm_type_next])           
+        # sample x_0 from triangle dist: F(x_0) is in (0,1) and equivalent to random time already spent in service
+        # Sample x from the traingle dist and only keep if the x>=x_0
+        C = (service_dist['mid'] - service_dist['low']) / (service_dist['high'] - service_dist['low'])
+        loc = service_dist['low']
+        scale = service_dist['high'] - service_dist['low']
+        x_0 = scipy.stats.triang.rvs(C,loc,scale)
+        generating = True
+        while generating:
+                x = scipy.stats.triang.rvs(C,loc,scale)
+                if x >= x_0:
+                        time_in_accomm = x-x_0
+                        generating = False
+        
+        #time_in_accomm = np.random.exponential(service_mean[accomm_type_next])
         yield env.timeout(time_in_accomm)
 
         # Finally, leave housing
@@ -317,7 +330,8 @@ def process_find_accommodation(env, c, accommodation_stock, service_mean, warm_u
 
                 # When found housing, leave shelter and spend time in housing
                 accommodation_stock.store.put(shelter)
-                time_in_accomm = np.random.exponential(service_mean[accomm_type_next])
+                #time_in_accomm = np.random.exponential(service_mean[accomm_type_next])
+                time_in_accomm = np.random.triangular(service_dist['low'], service_dist['mid'], service_dist['high'])
                 yield env.timeout(time_in_accomm)
 
                 # Finally, leave housing
