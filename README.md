@@ -5,9 +5,9 @@ Graham Burgess (Lancaster University, UK), Dashi Singham (Naval Postgraduate Sch
 
 To use this code, clone the repository to your local disk. For successful use, it is important to work within a new conda environment which has all the Python packages installed as listed in the environment.yml file.
 One way of setting this up (for free) is as follows: 
-- Install miniconda ([https://www.anaconda.com/docs/getting-started/miniconda/install])
-- Clone this repository to your local machine.
-- In the command line, navigate to this repository, activate miniconda and create a conda environment with the required dependencies: 
-  $ cd ~/GitHub/time-varying-capacity-planning
-  $ source ~/miniconda3/bin/activate
-  $ conda env create -f environment.yml
+- Install miniconda ([https://www.anaconda.com/docs/getting-started/miniconda/install])  
+- Clone this repository to your local machine.  
+- In the command line, navigate to this repository, activate miniconda and create a conda environment with the required dependencies:   
+  $ cd ~/GitHub/time-varying-capacity-planning  
+  $ source ~/miniconda3/bin/activate  
+  $ conda env create -f environment.yml  
