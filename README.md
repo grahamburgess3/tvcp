@@ -13,8 +13,8 @@ One way of setting this up (for free) is as follows:
   $ source ~/miniconda3/bin/activate
   
   $ conda config --add channels conda-forge
-  
-  $ conda create -n tvcp jupyter numpy simpy matplotlib pandas scipy pyomo ipopt glpk
+
+  $ conda create -n tvcp jupyter=1.1.1 numpy=2.2.5 simpy=4.1.1 matplotlib=3.10.3 pandas=2.2.3 scipy=1.15.2 pyomo=6.9.2 ipopt=3.14.17 glpk=5.0
   
 - Activate this environment and open jupyter notebook
   $ conda activate tvcp
